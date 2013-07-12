@@ -105,9 +105,9 @@ print "successfully read"
 if s[2]=='left\r\n':
     if s[5]=='Laurence\r\n':
         if s[8]=='Rob\r\n':
-            print "Laurence & Rob are playing a game. Laurence is on the left and Rob is on the right."
+            print s[5], " & ", s[8], " are playing a game. ", s[5], " is on the left and ", s[8], " is on the right."
             if __name__ == '__main__':
                 lcd = HD44780()
-                lcd.message(" Laurence v. Rob\2 Laurence(Left)\3 versus\4 Rob(Right)")
+                lcd.message(str(s[5])+"\2 versus \3"+str(s[8])+"\4 ***")
                 print "message sent to lcd"
 
