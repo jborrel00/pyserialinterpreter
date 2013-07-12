@@ -1,6 +1,9 @@
 #notes on the program and the processes happening behind it:
 
 #10 lines of communitcation total from Arduino to Pi
+"""['\n', 'pick a side\r\n', 'left\r\n', 'Waiting for an ISO14443A Card ...\r\n', 'Hello \r\n', 'Laurence\r\n', 'next player log in\r\n', 'Hello \r\n', 'Rob\r\n', 'You may only have 2 players at a time\r\n']"""
+#the important pieces of info are: which side (assigned to first sign-in), who's the first sign-in an who's the second
+#this is lines s[2], s[5] and s[8]
 """if you're off and there is serial output that would've already been sent,
 were the Arduino not attached to the Pi, it will show up the next time you call
 ser.readline() until you clear that old text out"""
@@ -13,13 +16,13 @@ GPIO.setwarnings(False)
 from time import sleep
 class HD44780:
 
-    def __init__(self, pin_rs=7, pin_e=8, pins_db=[25, 24, 23, 18]): #pins db provide data writing, all other connections are for power
+    def __init__(self, pin_rs=26, pin_e=24, pins_db=[22, 18, 16, 12]): #pins db provide data writing, all other connections are for power
 
         self.pin_rs=pin_rs
         self.pin_e=pin_e
         self.pins_db=pins_db
 
-        GPIO.setmode(GPIO.BCM)
+        GPIO.setmode(GPIO.BOARD)
         GPIO.setup(self.pin_e, GPIO.OUT)
         GPIO.setup(self.pin_rs, GPIO.OUT)
         for pin in self.pins_db:
@@ -93,15 +96,18 @@ print "ready"
 s=[]#array that will hold the Serial output
 for i in range(10):
     r=ser.readline()
+    print r #for serial output debugging
     s.append(r)
-print "successfully read"
-if s==['\n', 'pick a side\r\n', 'left\r\n', 'Waiting for an ISO14443A Card ...\r\n', 'Hello \r\n', 'Laurence\r\n', 'next player log in\r\n', 'Hello \r\n', 'Rob\r\n', 'You may only have 2 players at a time\r\n']:
-    print "Laurence & Rob are playing a game. Laurence is on the left and Rob is on the right."
     if __name__ == '__main__':
         lcd = HD44780()
-        lcd.message(" Laurence v. Rob\2 Laurence(Left)\3 versus\4 Rob(Right)")
-        print "message sent to lcd"
-"""GPIO.output(5,0) #resetting to ensure proper Serial display
-sleep(.1)
-GPIO.output(5,1)
-sleep(.1)"""
+        lcd.message(str(r))
+print "successfully read"
+if s[2]=='left\r\n':
+    if s[5]=='Laurence\r\n':
+        if s[8]=='Rob\r\n':
+            print "Laurence & Rob are playing a game. Laurence is on the left and Rob is on the right."
+            if __name__ == '__main__':
+                lcd = HD44780()
+                lcd.message(" Laurence v. Rob\2 Laurence(Left)\3 versus\4 Rob(Right)")
+                print "message sent to lcd"
+
