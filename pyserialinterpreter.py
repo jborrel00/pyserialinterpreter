@@ -4,6 +4,10 @@
 """['\n', 'pick a side\r\n', 'left\r\n', 'Waiting for an ISO14443A Card ...\r\n', 'Hello \r\n', 'Laurence\r\n', 'next player log in\r\n', 'Hello \r\n', 'Rob\r\n', 'You may only have 2 players at a time\r\n']"""
 #the important pieces of info are: which side (assigned to first sign-in), who's the first sign-in an who's the second
 #this is lines s[2], s[5] and s[8]
+
+#important pieces of info for sending hex data to pi for comparison against a database are, side and players (in hex)
+#s[2], s[4], s[8]
+#just the hex data can be removed from these dictionaries by saving them as their own variable and then selecting the desired characters - [0:47], contains all 16 bits of info from the card
 """if you're off and there is serial output that would've already been sent,
 were the Arduino not attached to the Pi, it will show up the next time you call
 ser.readline() until you clear that old text out"""
@@ -90,11 +94,11 @@ GPIO.output(5,0)
 sleep(.1)
 GPIO.output(5,1) #start high to allow arduino to run program
 sleep(.1)
-ser = serial.Serial('/dev/ttyACM0',115200)#can also be ACM1
+ser = serial.Serial('/dev/ttyACM1',115200)#can also be ACM1
 #would like to be able to address that at some point and allow the program to check for both options without returning an error for the wrong one
 print "ready"
 s=[]#array that will hold the Serial output
-for i in range(10):
+for i in range(12):
     r=ser.readline()
     print r #for serial output debugging
     s.append(r)
@@ -103,11 +107,14 @@ for i in range(10):
         lcd.message(str(r))
 print "successfully read"
 if s[2]=='left\r\n':
-    if s[5]=='Laurence\r\n':
-        if s[8]=='Rob\r\n':
-            print s[5], " & ", s[8], " are playing a game. ", s[5], " is on the left and ", s[8], " is on the right."
+    if s[6]=='Laurence\r\n':
+        if s[10]=='Rob\r\n':
+            print s[6], " & ", s[10], " are playing a game. ", s[6], " is on the left and ", s[10], " is on the right."
             if __name__ == '__main__':
                 lcd = HD44780()
                 lcd.message(str(s[5])+"\2 versus \3"+str(s[8])+"\4 ***")
                 print "message sent to lcd"
+GPIO.output(5,0)
+sleep(.1)
+GPIO.output(5,1)
 
