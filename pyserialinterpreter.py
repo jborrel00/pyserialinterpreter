@@ -85,36 +85,54 @@ class HD44780:
                 self.cmd(0xD4) #4th line
             else:
                 self.cmd(ord(char),True)
-                
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(5,GPIO.OUT)
-GPIO.output(5,1) 
-sleep(.1)
-GPIO.output(5,0)
-sleep(.1)
-GPIO.output(5,1) #start high to allow arduino to run program
-sleep(.1)
-ser = serial.Serial('/dev/ttyACM1',115200)#can also be ACM1
-#would like to be able to address that at some point and allow the program to check for both options without returning an error for the wrong one
-print "ready"
-s=[]#array that will hold the Serial output
-for i in range(12):
-    r=ser.readline()
-    print r #for serial output debugging
-    s.append(r)
-    if __name__ == '__main__':
-        lcd = HD44780()
-        lcd.message(str(r))
-print "successfully read"
-if s[2]=='left\r\n':
-    if s[6]=='Laurence\r\n':
-        if s[10]=='Rob\r\n':
-            print s[6], " & ", s[10], " are playing a game. ", s[6], " is on the left and ", s[10], " is on the right."
-            if __name__ == '__main__':
-                lcd = HD44780()
-                lcd.message(str(s[5])+"\2 versus \3"+str(s[8])+"\4 ***")
-                print "message sent to lcd"
-GPIO.output(5,0)
-sleep(.1)
-GPIO.output(5,1)
+a=1
+while a==1:
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(5,GPIO.OUT)
+    GPIO.output(5,1) 
+    sleep(.1)
+    GPIO.output(5,0)
+    sleep(.1)
+    GPIO.output(5,1) #start high to allow arduino to run program
+    sleep(.1)
+    ser = serial.Serial('/dev/ttyACM1',115200)#can also be ACM1
+    #would like to be able to address that at some point and allow the program to check for both options without returning an error for the wrong one
+    print "ready"
+    s=[]#array that will hold the Serial output
+    for i in range(12):
+        r=ser.readline()
+        print r #for serial output debugging
+        s.append(r)
+        if __name__ == '__main__':
+            lcd = HD44780()
+            lcd.message(str(r))
+    #print "successfully read"
+    if s[2]=='left\r\n' or 'right\r\n':
+        if s[6]=='Laurence\r\n' or'Rob\r\n' or 'Joe\r\n' or 'James\r\n' or 'Sloan\r\n' or 'Joelle\r\n' or 'Bob\r\n' or 'Christina\r\n' or 'Colleen\r\n' or 'Nae\r\n':
+            if s[10]=='Laurence\r\n' or'Rob\r\n' or 'Joe\r\n' or 'James\r\n' or 'Sloan\r\n' or 'Joelle\r\n' or 'Bob\r\n' or 'Christina\r\n' or 'Colleen\r\n' or 'Nae\r\n':
+                if s[6]==s[10]:
+                    print 'You cannot play yourself!'
+                    a=2
+                else:
+                    print s[6]+" & "+s[10]+" are playing a game. "+s[6]+" is on the "+s[2]
+                    if __name__ == '__main__':
+                        lcd = HD44780()
+                        lcd.message(str(s[6])+"\2 versus \3"+str(s[10])+"\4 ***")
+                        print "message sent to lcd"
+    p1=s[4]
+    p2=s[8]
+    p1h=p1[0:47]
+    p2h=p2[0:47]
+    print "player 1  hex code: ", p1h
+    print "player 2 hex code: ", p2h
+    if s[3] != 'Waiting for an ISO14443A Card ...\r\n' or s[11] != 'You may only have 2 players at a time\r\n':
+        print s
+        print 'invalid read, please try again'
+        GPIO.output(5,0)
+        sleep(.1)
+        GPIO.output(5,1)
+        print 'program reset, please try again'
+    else:
+        a=2
+print 'program end'
 
